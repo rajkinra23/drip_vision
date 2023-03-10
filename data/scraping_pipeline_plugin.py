@@ -16,12 +16,21 @@ from models import model_api
 from data_loaders import LABELS as classification_labels
 
 class ScrapingPipelineAbstractClass():
-    def __init__(self):
+    def __init__(self, labels):
         # Initialize model API's
         self.detector = model_api.EfficientDetAPI()
         self.classifier = model_api.ClipAPI()
-        self.dataset_root = "/home/rajkinra23/git/drip_vision/experimental/"
+        self.dataset_root = "/home/rajkinra23/git/drip_vision/data/embeddings_dataset/train"
         self.tmp_root = "/tmp/scraped_dataset/"
+
+        # Create the tmp root if it doesn't exist (since this can get deleted by os manager)
+        if not os.path.exists(self.tmp_root):
+            os.mkdir(self.tmp_root)
+
+        # Class labels for this scraper; default to the classification labels
+        # in the deepfashion dataset, but probably best to supply it. 
+        self.labels = labels
+        print(self.labels)
 
     def generate_image_metadata(self):
         """This function should return a map from some kind of id associated
@@ -60,7 +69,7 @@ class ScrapingPipelineAbstractClass():
         # doesn't exist, create. Otherwise, return
         if os.path.exists(image_directory):
             if overwrite:
-                print("Product id {} alreadt written".format(product_id))
+                print("Product id {} already written".format(product_id))
                 return
         os.mkdir(image_directory)
 
@@ -95,8 +104,8 @@ class ScrapingPipelineAbstractClass():
         for temp_image_path in temp_image_paths:
             cropped_images = self.detector.detect(temp_image_path)
             for i, image in enumerate(cropped_images):
-                image_class, c = self.classifier.rank_labels(image, classification_labels)
-                if image_class in self.desired_image_classes() and c >= 0.2:
+                image_class, c = self.classifier.rank_labels(image, self.labels)
+                if image_class in self.desired_image_classes() and c >= 0.6:
                     image_name = os.path.split(temp_image_path)[-1]
                     filename, extension = image_name.split(".")
                     image_name = ".".join((f"{filename}_{i}", extension))
