@@ -37,7 +37,7 @@ class ClipAPI():
 
     def rank_labels(self, image, labels):
         image = self.preprocess(image).unsqueeze(0).to(self.device)
-        text = clip.tokenize(list(labels.values())).to(self.device)
+        text = clip.tokenize(labels).to(self.device)
         with torch.no_grad():
             logits_per_image, _ = self.clip_model(image, text)
             probs = logits_per_image.softmax(dim=-1).cpu().numpy()
