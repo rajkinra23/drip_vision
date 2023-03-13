@@ -1,0 +1,7 @@
+data/deepfashion
+data/embeddings_dataset
+data/embeddings_dataset_v2
+models/efficientdet_checkpoints/
+models/embedding_model.pt
+lightning_logs/
+.ipynb_checkpoints
