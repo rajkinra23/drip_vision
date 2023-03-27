@@ -42,3 +42,8 @@ class ClipAPI():
             logits_per_image, _ = self.clip_model(image, text)
             probs = logits_per_image.softmax(dim=-1).cpu().numpy()
         return np.argmax(probs), probs.max()
+    
+    def get_embedding(self, image):
+        image_input = self.preprocess(Image.open(image)).unsqueeze(0).to(self.device)
+        image_features = self.clip_model.encode_image(image_input)
+        return image_features

@@ -15,10 +15,9 @@ class QueryEngine():
 
     def query(self, query_vector, count):
         # Build query
-        q = Query(f'*=>[KNN {topK} @{self.product_image_vector_field} $vec_param EF_RUNTIME {self.ef_runtime} AS vector_score]').sort_by('vector_score').paging(0, count).return_fields('vector_score','item_name').dialect(2)
+        q = Query(f'*=>[KNN {count} @{self.product_image_vector_field} $vec_param EF_RUNTIME {self.ef_runtime} AS vector_score]').sort_by('vector_score').paging(0, count).return_fields('vector_score','item_name').dialect(2)
         params_dict = {"vec_param": query_vector}
 
         # Run Query and return documents
-        results = self.r.ft().search(q, query_params = params_dict)
         docs = self.r.ft().search(q, params_dict).docs
         return docs
